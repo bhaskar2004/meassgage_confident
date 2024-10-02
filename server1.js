@@ -16,9 +16,10 @@ const io = socketIo(server, {
     }
 });
 
-
-// Use CORS for all routes
-app.use(cors());
+// Use CORS for all routes, allowing the same frontend origin
+app.use(cors({
+    origin: "https://meassgage-confident-czmf.vercel.app" // Allow your frontend origin for Express routes
+}));
 
 // Store users and their unique IDs
 let users = {};
