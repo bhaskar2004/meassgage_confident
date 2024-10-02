@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messaging App with Connection Requests</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Messaging App with Connection Requests</h1>
+    
+    <div class="connect-area">
+        <button id="generateIdBtn">Generate Unique ID</button>
+        <div id="userIdDisplay" style="display:none; margin-top: 10px;"></div>
+        <input type="text" id="connectIdInput" placeholder="Enter Unique ID to Connect" />
+        <button id="connectBtn">Send Connection Request</button>
+    </div>
+
+    <div class="notification-area" id="notificationArea" style="display:none;">
+        <h2>Connection Requests</h2>
+        <div id="requests"></div>
+    </div>
+
+    <div class="app-container" style="display: none;">
+        <div class="user-column">
+            <h2>Your Messages</h2>
+            <div id="userMessageArea" class="message-area"></div>
+            <textarea id="userInput" class="message-input" placeholder="Type your message here" rows="3"></textarea>
+            <div class="button-group">
+                <button id="sendBtn">Send</button>
+                <button id="encryptToggle" class="toggle-btn">Encryption: OFF</button>
+                <button id="decryptToggle" class="toggle-btn">Decrypt: OFF</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
