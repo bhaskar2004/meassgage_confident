@@ -18,12 +18,10 @@ const corsOptions = {
 // Enable CORS for all requests
 app.use(cors(corsOptions));
 
-// Use the same CORS options for Socket.io
+// Initialize Socket.io with the same CORS options
 const io = socketIo(server, {
-    cors: corsOptions // Use the same CORS options for Socket.io
+    cors: corsOptions
 });
-
-
 
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public'))); 
@@ -34,10 +32,6 @@ app.get('/', (req, res) => {
 
 // Create a users object to map user IDs to socket IDs
 const users = {};
-
-const io = socketIo(server, {
-    cors: corsOptions // Use the same CORS options for Socket.io
-});
 
 // Handle socket connections
 io.on('connection', (socket) => {
