@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 
 // Set up CORS options
 const corsOptions = {
-    origin: "https://meassgage-confident-czmf.vercel.app", // Your frontend origin
+    origin: ["https://meassgage-confident-czmf.vercel.app", "http://localhost:3000"], // Allow your front-end origin and localhost for testing
     methods: ["GET", "POST"],
     credentials: true // Allow credentials if needed
 };
