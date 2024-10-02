@@ -39,7 +39,9 @@ connectBtn.addEventListener('click', () => {
 socket.on('connection request', ({ from }) => {
     notificationArea.style.display = 'block';
     requestsDiv.innerHTML += `<div>Connection request from ID: ${from} <button class="acceptBtn" data-id="${from}">Accept</button></div>`;
+    // Optionally limit the number of requests shown or clear old ones
 });
+
 
 // Accept connection
 requestsDiv.addEventListener('click', (event) => {
