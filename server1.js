@@ -10,10 +10,11 @@ const PORT = process.env.PORT || 3000;
 
 // Set up CORS options
 const corsOptions = {
-    origin: "*", // Allow all origins for testing
+    origin: "https://meassgage-confident-czmf.vercel.app", // Your frontend origin
     methods: ["GET", "POST"],
-    credentials: true
+    credentials: true // Allow credentials if needed
 };
+
 // Enable CORS for all requests
 app.use(cors(corsOptions));
 
@@ -55,15 +56,12 @@ io.on('connection', (socket) => {
         io.to(users[to]).emit('connected', { from });
     });
 
-    socket.on('chat message', ({ message, to, timestamp }) => {
-        const from = Object.keys(users).find(key => users[key] === socket.id);
-        if (from) {
-            if (users[to]) {
-                io.to(users[to]).emit('chat message', { message, from, timestamp });
-                console.log(`Message from ${from} to ${to}: ${message}`);
-            } else {
-                console.log(`User ${to} not found`);
-            }
+    socket.on('chat message', ({ message, to, from, timestamp }) => {
+        if (users[to]) {
+            io.to(users[to]).emit('chat message', { message, from, timestamp });
+            console.log(`Message from ${from} to ${to}: ${message}`);
+        } else {
+            console.log(`User ${to} not found`);
         }
     });
 
