@@ -16,6 +16,7 @@ const io = socketIo(server, {
     }
 });
 
+
 // Use CORS for all routes
 app.use(cors());
 
