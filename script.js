@@ -42,7 +42,6 @@ socket.on('connection request', ({ from }) => {
     // Optionally limit the number of requests shown or clear old ones
 });
 
-
 // Accept connection
 requestsDiv.addEventListener('click', (event) => {
     if (event.target.classList.contains('acceptBtn')) {
@@ -62,7 +61,8 @@ sendBtn.addEventListener('click', () => {
         if (toUserId) {
             const encryptedMessage = isEncryptionEnabled ? encryptMessage(message) : message; // Encrypt if enabled
             const timestamp = new Date().toLocaleTimeString(); // Get current time
-            socket.emit('chat message', { message: encryptedMessage, to: toUserId, timestamp });
+            const from = uniqueId; // Get the sender ID
+            socket.emit('chat message', { message: encryptedMessage, to: toUserId, from, timestamp });
             userInput.value = ''; // Clear input
         } else {
             alert('No connected user to send the message to.');
@@ -101,4 +101,14 @@ encryptToggle.addEventListener('click', () => {
 decryptToggle.addEventListener('click', () => {
     isDecryptionEnabled = !isDecryptionEnabled;
     decryptToggle.textContent = `Decrypt: ${isDecryptionEnabled ? 'ON' : 'OFF'}`;
+});
+
+// Handle connection error
+socket.on('connect_error', (error) => {
+    console.error('Connection error:', error);
+});
+
+// Log successful connection
+socket.on('connect', () => {
+    console.log('Successfully connected to the server');
 });
