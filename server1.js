@@ -1,13 +1,23 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
+const cors = require('cors');
 const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const PORT = process.env.PORT || 3000; // Use environment variable or default to 3000
 
-const PORT = 3000;
+const io = socketIo(server, {
+    cors: {
+        origin: "https://meassgage-confident-czmf.vercel.app", // Allow your frontend origin
+        methods: ["GET", "POST"], // Allowed methods
+        credentials: true // Allow credentials if needed
+    }
+});
+
+// Use CORS for all routes
+app.use(cors());
 
 // Store users and their unique IDs
 let users = {};
