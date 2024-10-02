@@ -18,6 +18,13 @@ const corsOptions = {
 // Enable CORS for all requests
 app.use(cors(corsOptions));
 
+// Use the same CORS options for Socket.io
+const io = socketIo(server, {
+    cors: corsOptions // Use the same CORS options for Socket.io
+});
+
+
+
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public'))); 
 
