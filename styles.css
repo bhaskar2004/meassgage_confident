@@ -1,0 +1,75 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    color: #4a90e2;
+}
+
+.connect-area, .notification-area {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.app-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.user-column {
+    flex: 1;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    margin-right: 10px;
+}
+
+.message-area {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fff;
+}
+
+.message-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #4a90e2;
+    color: white;
+}
+
+button:hover {
+    background-color: #3a80d2;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
