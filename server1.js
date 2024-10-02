@@ -8,40 +8,31 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000; // Use environment variable or default to 3000
 
-// CORS configuration for Socket.IO
-const io = socketIo(server, {
-    cors: {
-        origin: "https://meassgage-confident-czmf.vercel.app", // Allow your frontend origin
-        methods: ["GET", "POST"], // Allowed methods
-        credentials: true // Allow credentials if needed
-    }
-});
-
-// CORS configuration for Express
-app.use(cors({
-    origin: "*", // Allow your frontend origin for Express routes
+// CORS configuration
+const corsOptions = {
+    origin: "https://meassgage-confident-czmf.vercel.app", // Allow your frontend origin
+    methods: ["GET", "POST"], // Allowed methods
     credentials: true // Allow credentials if needed
-}));
+};
 
-// Log every request to verify CORS behavior
-app.use((req, res, next) => {
-    console.log(`Request Method: ${req.method}, Request URL: ${req.url}`);
-    res.header("Access-Control-Allow-Origin", "https://meassgage-confident-czmf.vercel.app");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+// Use CORS middleware
+app.use(cors(corsOptions));
 
 // Store users and their unique IDs
 let users = {};
 
 // Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'))); 
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html')); // Serve the HTML file
 });
 
 // Handle socket connections
+const io = socketIo(server, {
+    cors: corsOptions // Ensure CORS is configured for Socket.IO as well
+});
+
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
@@ -59,7 +50,6 @@ io.on('connection', (socket) => {
 
     socket.on('accept connection', ({ from, to }) => {
         console.log(`Accepted connection from ${from} to ${to}`);
-        // Notify both users that the connection was accepted
         io.to(users[from]).emit('connected', { to });
         io.to(users[to]).emit('connected', { from });
     });
@@ -67,7 +57,6 @@ io.on('connection', (socket) => {
     socket.on('chat message', ({ message, to, timestamp }) => {
         const from = Object.keys(users).find(key => users[key] === socket.id);
         if (from) {
-            // Check if the recipient exists in the users object before sending the message
             if (users[to]) {
                 io.to(users[to]).emit('chat message', { message, from, timestamp });
                 console.log(`Message from ${from} to ${to}: ${message}`);
@@ -79,7 +68,6 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
-        // Remove the user from the users object
         for (let userId in users) {
             if (users[userId] === socket.id) {
                 delete users[userId];
