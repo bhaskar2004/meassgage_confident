@@ -1,5 +1,4 @@
-const socket = io(); // Initialize socket.io connection
-
+const socket = io('https://cdn.socket.io/4.0.0/socket.io.min.js');
 let uniqueId;
 const userMessageArea = document.getElementById('userMessageArea');
 const userInput = document.getElementById('userInput');
