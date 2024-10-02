@@ -19,7 +19,7 @@ const io = socketIo(server, {
 
 // CORS configuration for Express
 app.use(cors({
-    origin: "https://meassgage-confident-czmf.vercel.app", // Allow your frontend origin for Express routes
+    origin: "*", // Allow your frontend origin for Express routes
     credentials: true // Allow credentials if needed
 }));
 
