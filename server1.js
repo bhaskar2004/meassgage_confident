@@ -6,24 +6,30 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const PORT = process.env.PORT || 3000; // Use environment variable or default to 3000
+const PORT = process.env.PORT || 3000;
 
-const socket = io('https://meassgage-confident-czmf-ja9l9joe5-bhaskar2004s-projects.vercel.app', {
-    withCredentials: true // Include credentials if needed
-});
-
-// Use CORS for all routes
-app.use(cors({
+// Set up CORS options
+const corsOptions = {
     origin: "https://meassgage-confident-czmf.vercel.app", // Your frontend origin
     methods: ["GET", "POST"],
     credentials: true // Allow credentials if needed
-}));
+};
+
+// Enable CORS for all requests
+app.use(cors(corsOptions));
 
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public'))); 
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html')); // Serve the HTML file
+});
+
+// Create a users object to map user IDs to socket IDs
+const users = {};
+
+const io = socketIo(server, {
+    cors: corsOptions // Use the same CORS options for Socket.io
 });
 
 // Handle socket connections
@@ -39,6 +45,8 @@ io.on('connection', (socket) => {
         if (users[to]) {
             io.to(users[to]).emit('connection request', { from });
             console.log(`Connection request from ${from} to ${to}`);
+        } else {
+            console.log(`User ${to} not found`);
         }
     });
 
