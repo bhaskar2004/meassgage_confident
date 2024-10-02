@@ -1,4 +1,4 @@
-const socket = io('https://meassgage-confident-czmf.vercel.app/');
+const socket = io('https://meassgage-confident-czmf-ja9l9joe5-bhaskar2004s-projects.vercel.app/');
 let uniqueId;
 const userMessageArea = document.getElementById('userMessageArea');
 const userInput = document.getElementById('userInput');
