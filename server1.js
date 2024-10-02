@@ -8,12 +8,8 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000; // Use environment variable or default to 3000
 
-const io = socketIo(server, {
-    cors: {
-        origin: "https://meassgage-confident-czmf.vercel.app", // Your frontend origin
-        methods: ["GET", "POST"], // Allowed methods
-        credentials: true // Allow credentials if needed
-    }
+const socket = io('https://meassgage-confident-czmf-ja9l9joe5-bhaskar2004s-projects.vercel.app', {
+    withCredentials: true // Include credentials if needed
 });
 
 // Use CORS for all routes
