@@ -8,6 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000; // Use environment variable or default to 3000
 
+// CORS configuration for Socket.IO
 const io = socketIo(server, {
     cors: {
         origin: "https://meassgage-confident-czmf.vercel.app", // Allow your frontend origin
@@ -16,16 +17,25 @@ const io = socketIo(server, {
     }
 });
 
-// Use CORS for all routes, allowing the same frontend origin
+// CORS configuration for Express
 app.use(cors({
-    origin: "https://meassgage-confident-czmf.vercel.app" // Allow your frontend origin for Express routes
+    origin: "https://meassgage-confident-czmf.vercel.app", // Allow your frontend origin for Express routes
+    credentials: true // Allow credentials if needed
 }));
+
+// Log every request to verify CORS behavior
+app.use((req, res, next) => {
+    console.log(`Request Method: ${req.method}, Request URL: ${req.url}`);
+    res.header("Access-Control-Allow-Origin", "https://meassgage-confident-czmf.vercel.app");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 // Store users and their unique IDs
 let users = {};
 
 // Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public'))); 
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html')); // Serve the HTML file
