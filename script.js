@@ -1,4 +1,7 @@
-const socket = io('https://meassgage-confident-czmf-ja9l9joe5-bhaskar2004s-projects.vercel.app/');
+const socket = io('https://meassgage-confident-czmf-ja9l9joe5-bhaskar2004s-projects.vercel.app', {
+    transports: ["websocket", "polling"], // Use both transports for better compatibility
+    withCredentials: true // Allow credentials if needed
+});
 let uniqueId;
 const userMessageArea = document.getElementById('userMessageArea');
 const userInput = document.getElementById('userInput');
@@ -56,8 +59,7 @@ requestsDiv.addEventListener('click', (event) => {
 sendBtn.addEventListener('click', () => {
     const message = userInput.value.trim();
     if (message) {
-        // Prompt for the recipient ID to send the message to
-        const toUserId = Array.from(connectedUsers).pop(); // Get the last connected user (this can be modified based on your preference)
+        const toUserId = Array.from(connectedUsers).pop(); // Get the last connected user
         if (toUserId) {
             const encryptedMessage = isEncryptionEnabled ? encryptMessage(message) : message; // Encrypt if enabled
             const timestamp = new Date().toLocaleTimeString(); // Get current time
