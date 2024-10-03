@@ -18,10 +18,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Initialize Socket.io with the same CORS options
-const io = new Server(server, {
-    cors: corsOptions,
-    transports: ['websocket', 'polling'],  // Explicitly specify transports
-    path: '/socket.io/'  // Ensure this matches your client-side configuration
+const socket = io('https://meassgage-confident-czmf-ja9l9joe5-bhaskar2004s-projects.vercel.app/', {
+    transports: ['websocket', 'polling'],
+    reconnectionAttempts: 5
 });
 
 // Serve static files from the "public" directory
