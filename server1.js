@@ -9,10 +9,18 @@ const server = http.createServer(app);
 
 // Set up CORS options
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || "https://meassgage-confident-czmf.vercel.app",
-    methods: ["GET", "POST"],
-    credentials: true
+    origin: "https://meassgage-confident-czmf.vercel.app", // Your frontend URL
+    methods: ["GET", "POST", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"]
 };
+
+app.use(cors(corsOptions));
+
+const io = new Server(server, {
+    cors: corsOptions,
+    transports: ['websocket', 'polling']
+});
 
 // Enable CORS for all requests
 app.use(cors(corsOptions));
@@ -20,7 +28,11 @@ app.use(cors(corsOptions));
 // Initialize Socket.io with the same CORS options
 const socket = io('https://meassgage-confident-czmf-ja9l9joe5-bhaskar2004s-projects.vercel.app/', {
     transports: ['websocket', 'polling'],
-    reconnectionAttempts: 5
+    reconnectionAttempts: 5,
+    timeout: 10000,
+    forceNew: true,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000
 });
 
 // Serve static files from the "public" directory
