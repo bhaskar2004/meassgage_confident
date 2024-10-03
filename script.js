@@ -1,114 +1,139 @@
-const socket = io('https://meassgage-confident-czmf-ja9l9joe5-bhaskar2004s-projects.vercel.app/');
-let uniqueId;
-const userMessageArea = document.getElementById('userMessageArea');
-const userInput = document.getElementById('userInput');
-const sendBtn = document.getElementById('sendBtn');
-const encryptToggle = document.getElementById('encryptToggle');
-const decryptToggle = document.getElementById('decryptToggle');
-const userIdDisplay = document.getElementById('userIdDisplay');
-const connectIdInput = document.getElementById('connectIdInput');
-const connectBtn = document.getElementById('connectBtn');
-const notificationArea = document.getElementById('notificationArea');
-const requestsDiv = document.getElementById('requests');
-const appContainer = document.querySelector('.app-container');
-
-let isEncryptionEnabled = false; // Track encryption status
-let isDecryptionEnabled = false; // Track decryption status
-const connectedUsers = new Set(); // Store connected user IDs
-
-// Generate Unique ID
-document.getElementById('generateIdBtn').addEventListener('click', () => {
-    uniqueId = Math.floor(1000 + Math.random() * 9000); // Generate 4-digit unique ID
-    userIdDisplay.textContent = `Your Unique ID: ${uniqueId}`;
-    userIdDisplay.style.display = 'block';
-
-    // Register the user with the generated ID
-    socket.emit('register', uniqueId); // Emit the registration event
+// Initialize socket connection
+const socket = io('https://meassgage-confident-czmf-ja9l9joe5-bhaskar2004s-projects.vercel.app/', {
+    transports: ['websocket', 'polling'],
+    reconnectionAttempts: 5
 });
 
-// Send Connection Request
-connectBtn.addEventListener('click', () => {
-    const connectId = connectIdInput.value.trim();
-    if (connectId) {
-        socket.emit('send connection request', { from: uniqueId, to: connectId });
-        connectIdInput.value = ''; // Clear input
-    }
-});
+// DOM Elements
+const elements = {
+    userMessageArea: document.getElementById('userMessageArea'),
+    userInput: document.getElementById('userInput'),
+    sendBtn: document.getElementById('sendBtn'),
+    encryptToggle: document.getElementById('encryptToggle'),
+    decryptToggle: document.getElementById('decryptToggle'),
+    userIdDisplay: document.getElementById('userIdDisplay'),
+    connectIdInput: document.getElementById('connectIdInput'),
+    connectBtn: document.getElementById('connectBtn'),
+    notificationArea: document.getElementById('notificationArea'),
+    requestsDiv: document.getElementById('requests'),
+    appContainer: document.querySelector('.app-container'),
+    generateIdBtn: document.getElementById('generateIdBtn')
+};
 
-// Handle incoming connection requests
-socket.on('connection request', ({ from }) => {
-    notificationArea.style.display = 'block';
-    requestsDiv.innerHTML += `<div>Connection request from ID: ${from} <button class="acceptBtn" data-id="${from}">Accept</button></div>`;
-    // Optionally limit the number of requests shown or clear old ones
-});
+// State
+let state = {
+    uniqueId: null,
+    isEncryptionEnabled: false,
+    isDecryptionEnabled: false,
+    connectedUsers: new Set()
+};
 
-// Accept connection
-requestsDiv.addEventListener('click', (event) => {
-    if (event.target.classList.contains('acceptBtn')) {
-        const fromId = event.target.dataset.id;
-        socket.emit('accept connection', { from: uniqueId, to: fromId });
-        notificationArea.style.display = 'none'; // Hide notification
-        appContainer.style.display = 'block'; // Show messaging area
-        connectedUsers.add(fromId); // Add to connected users
-    }
-});
+// Utility Functions
+const generateUniqueId = () => Math.floor(1000 + Math.random() * 9000);
 
-// Sending Messages
-sendBtn.addEventListener('click', () => {
-    const message = userInput.value.trim();
-    if (message) {
-        const toUserId = Array.from(connectedUsers).pop(); // Get the last connected user
-        if (toUserId) {
-            const encryptedMessage = isEncryptionEnabled ? encryptMessage(message) : message; // Encrypt if enabled
-            const timestamp = new Date().toLocaleTimeString(); // Get current time
-            const from = uniqueId; // Get the sender ID
-            socket.emit('chat message', { message: encryptedMessage, to: toUserId, from, timestamp });
-            userInput.value = ''; // Clear input
-        } else {
-            alert('No connected user to send the message to.');
-        }
-    }
-});
-
-// Receive Messages
-socket.on('chat message', (data) => {
-    const displayMessage = isDecryptionEnabled ? decryptMessage(data.message) : data.message; 
-    const msgElement = document.createElement('div');
-    msgElement.textContent = `[${data.timestamp}] User ${data.from}: ${displayMessage}`; 
-    userMessageArea.appendChild(msgElement);
-});
-
-// Message encryption function
-function encryptMessage(message) {
-    const key = 'secretkey'; // Define a simple key for encryption
+const encryptDecryptMessage = (message, key = 'secretkey') => {
     return message.split('').map((char, index) =>
         String.fromCharCode(char.charCodeAt(0) ^ key.charCodeAt(index % key.length))
     ).join('');
-}
+};
 
-// Message decryption function
-function decryptMessage(message) {
-    return encryptMessage(message); // XOR works for both encryption and decryption
-}
+const displayMessage = (message, from, timestamp) => {
+    const msgElement = document.createElement('div');
+    msgElement.textContent = `[${timestamp}] User ${from}: ${message}`;
+    elements.userMessageArea.appendChild(msgElement);
+    elements.userMessageArea.scrollTop = elements.userMessageArea.scrollHeight;
+};
 
-// Encryption toggle functionality
-encryptToggle.addEventListener('click', () => {
-    isEncryptionEnabled = !isEncryptionEnabled;
-    encryptToggle.textContent = `Encryption: ${isEncryptionEnabled ? 'ON' : 'OFF'}`;
+// Event Handlers
+const handleGenerateId = () => {
+    state.uniqueId = generateUniqueId();
+    elements.userIdDisplay.textContent = `Your Unique ID: ${state.uniqueId}`;
+    elements.userIdDisplay.style.display = 'block';
+    socket.emit('register', state.uniqueId);
+};
+
+const handleSendConnectionRequest = () => {
+    const connectId = elements.connectIdInput.value.trim();
+    if (connectId && state.uniqueId) {
+        socket.emit('send connection request', { from: state.uniqueId, to: connectId });
+        elements.connectIdInput.value = '';
+    } else {
+        alert('Please generate your ID first and enter a valid connect ID.');
+    }
+};
+
+const handleAcceptConnection = (event) => {
+    if (event.target.classList.contains('acceptBtn')) {
+        const fromId = event.target.dataset.id;
+        socket.emit('accept connection', { from: state.uniqueId, to: fromId });
+        elements.notificationArea.style.display = 'none';
+        elements.appContainer.style.display = 'block';
+        state.connectedUsers.add(fromId);
+        updateConnectedUsersList();
+    }
+};
+
+const handleSendMessage = () => {
+    const message = elements.userInput.value.trim();
+    if (message && state.connectedUsers.size > 0) {
+        const toUserId = Array.from(state.connectedUsers).pop();
+        const processedMessage = state.isEncryptionEnabled ? encryptDecryptMessage(message) : message;
+        const timestamp = new Date().toLocaleTimeString();
+        socket.emit('chat message', { message: processedMessage, to: toUserId, from: state.uniqueId, timestamp });
+        elements.userInput.value = '';
+        displayMessage(message, 'You', timestamp);
+    } else {
+        alert('Please connect to a user before sending a message.');
+    }
+};
+
+const toggleEncryption = () => {
+    state.isEncryptionEnabled = !state.isEncryptionEnabled;
+    elements.encryptToggle.textContent = `Encryption: ${state.isEncryptionEnabled ? 'ON' : 'OFF'}`;
+};
+
+const toggleDecryption = () => {
+    state.isDecryptionEnabled = !state.isDecryptionEnabled;
+    elements.decryptToggle.textContent = `Decrypt: ${state.isDecryptionEnabled ? 'ON' : 'OFF'}`;
+};
+
+const updateConnectedUsersList = () => {
+    const connectedUsersElement = document.getElementById('connectedUsers');
+    if (connectedUsersElement) {
+        connectedUsersElement.innerHTML = Array.from(state.connectedUsers).map(userId => 
+            `<div>Connected to: ${userId}</div>`
+        ).join('');
+    }
+};
+
+// Socket Event Handlers
+socket.on('connection request', ({ from }) => {
+    elements.notificationArea.style.display = 'block';
+    elements.requestsDiv.innerHTML += `<div>Connection request from ID: ${from} <button class="acceptBtn" data-id="${from}">Accept</button></div>`;
 });
 
-// Decryption toggle functionality
-decryptToggle.addEventListener('click', () => {
-    isDecryptionEnabled = !isDecryptionEnabled;
-    decryptToggle.textContent = `Decrypt: ${isDecryptionEnabled ? 'ON' : 'OFF'}`;
+socket.on('chat message', (data) => {
+    const displayMsg = state.isDecryptionEnabled ? encryptDecryptMessage(data.message) : data.message;
+    displayMessage(displayMsg, data.from, data.timestamp);
 });
 
-// Handle connection error
 socket.on('connect_error', (error) => {
     console.error('Connection error:', error);
+    alert('Failed to connect to the server. Please try again later.');
 });
 
-// Log successful connection
 socket.on('connect', () => {
     console.log('Successfully connected to the server');
 });
+
+// Event Listeners
+elements.generateIdBtn.addEventListener('click', handleGenerateId);
+elements.connectBtn.addEventListener('click', handleSendConnectionRequest);
+elements.requestsDiv.addEventListener('click', handleAcceptConnection);
+elements.sendBtn.addEventListener('click', handleSendMessage);
+elements.encryptToggle.addEventListener('click', toggleEncryption);
+elements.decryptToggle.addEventListener('click', toggleDecryption);
+
+// Initialize UI
+elements.encryptToggle.textContent = `Encryption: OFF`;
+elements.decryptToggle.textContent = `Decrypt: OFF`;
